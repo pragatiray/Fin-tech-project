@@ -24,7 +24,7 @@ function registerUser (req,res) {
     const token = jwt.sign({userId:user._id}, process.env.JWT_SECRET, {expiresIn: '1d'});
 
     res.status(201).json({
-        message:"User registered successfully",
+        message:"Praati,User registered successfully ",
         status:success,
         user:user
     });
