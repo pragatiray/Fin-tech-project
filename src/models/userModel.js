@@ -12,6 +12,7 @@ userSchema.pre("save", async function () {
 
     const bcrypt = require("bcryptjs");
     this.password = await bcrypt.hash(this.password, 10);
+    console.log("Reseting the password");
 });
 
 module.exports = mongoose.model("User", userSchema);
