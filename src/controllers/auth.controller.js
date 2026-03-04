@@ -60,7 +60,6 @@ async function userLoginController(req, res) {
     const { email, password } = req.body;
 
     try {
-        // Find user by email
         const user = await userModel.findOne({ email });
 
         if (!user) {
@@ -69,7 +68,6 @@ async function userLoginController(req, res) {
             });
         }
 
-        // Compare password
         const isValidPassword = await user.comparePassword(password);
 
         if (!isValidPassword) {
@@ -77,18 +75,22 @@ async function userLoginController(req, res) {
                 message: "Email or password is invalid"
             });
         }
-
-        // Create token
+        console.log("Secret for JWT:", process.env.JWT_SECRET);
         const token = jwt.sign(
             { userId: user._id },
             process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
-        // Send cookie
-        res.cookie("token", token);
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 24 * 60 * 60 * 1000
+        });
 
-        res.status(200).json({
+        return res.status(200).json({
+            success: true,
             user: {
                 _id: user._id,
                 name: user.name,
@@ -98,7 +100,7 @@ async function userLoginController(req, res) {
         });
 
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: error.message
         });
