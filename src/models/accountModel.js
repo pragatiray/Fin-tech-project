@@ -6,13 +6,6 @@ const accountSchema = new mongoose.Schema({
     ref: 'user',
     required: [ true, 'Account must be associated with a user'],
     index: true
-
-  },
-  systemUser: {
-    type: Boolean,
-    default: false,
-    immutable: true,
-    select: false
   },
   status: {  
     type: String,            
@@ -22,7 +15,7 @@ const accountSchema = new mongoose.Schema({
 
     },    
         default: 'ACTIVE'
-    },     
+  },     
   currency: {
     type: String,
     required: [true,'Currency is required for creating an account' ],

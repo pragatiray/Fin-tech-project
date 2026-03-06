@@ -158,17 +158,15 @@ async function createInitialFundsTransaction(req,res) {
     const toUserAccount = await accountModel.findOne({
         _id: toAccount
     });
-    console.log("toUserAccount", toUserAccount);
+
     if (!toUserAccount) {
         res.status(400).json({
             message: "Invalid toAccount"
         });
     }
     const fromUserAccount = await accountModel.findOne({
-        systemUser: true,
         user: req.user._id
     });
-    console.log("fromUserAccount", fromUserAccount);
 
     if (!fromUserAccount) {
         res.status(400).json({
@@ -179,30 +177,30 @@ async function createInitialFundsTransaction(req,res) {
     const session = await transactionModel.startSession();
     session.startTransaction();
 
-    const transaction = await transactionModel.create({
-        fromAccount: fromUserAccount._id,
-        toAccount,  
-        amount,
-        idempotencyKey,
-        status: 'PENDING'
-    }, { session });
+    const [transaction] = await transactionModel.create([{
+    fromAccount: fromUserAccount._id,
+    toAccount: toAccount,
+    amount,
+    idempotencyKey,
+    status: 'PENDING'
+    }], { session });
 
-
-    const debitLedgerEntry = await ledgerModel.create({
+    const [debitLedgerEntry] = await ledgerModel.create([{
         account: fromUserAccount._id,
         amount,
         transaction: transaction._id,
         type: 'DEBIT'
-    }, { session });
+    }], { session });
 
-    const creditLedgerEntry = await ledgerModel.create({
+
+    const [creditLedgerEntry] = await ledgerModel.create([{
         account: toAccount,
         amount,
         transaction: transaction._id,
         type: 'CREDIT'
-    }, { session });
+    }], { session });
 
-    transaction.status = 'COMPLETED';
+    transaction.status = 'COMPLETE';
     await transaction.save({ session });
 
 
