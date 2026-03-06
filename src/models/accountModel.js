@@ -8,6 +8,12 @@ const accountSchema = new mongoose.Schema({
     index: true
 
   },
+  systemUser: {
+    type: Boolean,
+    default: false,
+    immutable: true,
+    select: false
+  },
   status: {  
     type: String,            
     enum: {

@@ -155,21 +155,20 @@ async function createInitialFundsTransaction(req,res) {
             message: "Missing required fields: toAccount, amount, idempotencyKey"
         });
     }
-    
     const toUserAccount = await accountModel.findOne({
         _id: toAccount
     });
-
+    console.log("toUserAccount", toUserAccount);
     if (!toUserAccount) {
         res.status(400).json({
             message: "Invalid toAccount"
         });
     }
-
     const fromUserAccount = await accountModel.findOne({
         systemUser: true,
         user: req.user._id
     });
+    console.log("fromUserAccount", fromUserAccount);
 
     if (!fromUserAccount) {
         res.status(400).json({
