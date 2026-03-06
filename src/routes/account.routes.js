@@ -10,5 +10,12 @@ const router = express.Router();
 
 router.post('/',authMiddleware,accountController.createAccount);
 
+/**
+ * GET /api/accounts
+ * Get all accounts for the authenticated user
+ * Protected
+ */
+
+router.get('/', authMiddleware, accountController.getUserAccountsController);
 
 module.exports = router;
