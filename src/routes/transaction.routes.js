@@ -8,5 +8,7 @@ const transactionRoutes = Router();
 
 transactionRoutes.post("/", authMiddleware.authMiddleware, transactionController.createTransaction);
 
+transactionRoutes.get("/system/initial-funds", authMiddleware.authMiddleware, transactionController.createInitialFundsTransaction);
+
 
 module.exports = transactionRoutes;

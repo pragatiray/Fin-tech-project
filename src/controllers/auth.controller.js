@@ -60,10 +60,12 @@ async function userLoginController(req, res) {
     const { email, password } = req.body;
 
     try {
-        const user = await userModel.findOne({ email });
+        // include password explicitly
+        const user = await userModel.findOne({ email }).select("+password");
 
         if (!user) {
             return res.status(404).json({
+                success: false,
                 message: "Email or password is invalid"
             });
         }
@@ -72,10 +74,11 @@ async function userLoginController(req, res) {
 
         if (!isValidPassword) {
             return res.status(401).json({
+                success: false,
                 message: "Email or password is invalid"
             });
         }
-        console.log("Secret for JWT:", process.env.JWT_SECRET);
+
         const token = jwt.sign(
             { userId: user._id },
             process.env.JWT_SECRET,
