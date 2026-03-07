@@ -107,34 +107,41 @@ async function createTransaction(req, res) {
     const session = await transactionModel.startSession();
     session.startTransaction();
 
-    const transaction = await transactionModel.create({
-        fromAccount,
-        toAccount,
-        amount,
-        idempotencyKey,
-        status: 'PENDING'
-    }, { session });
+    const [transaction] = await transactionModel.create([{
+    fromAccount,
+    toAccount,
+    amount,
+    idempotencyKey,
+    status: 'PENDING'
+    }], { session });
 
-    const debitLedgerEntry = await ledgerModel.create({
-        account: fromAccount,
-        amount,
-        transaction: transaction._id,
-        type: 'DEBIT'
-    }, { session });
+    await (() => {
+        return new Promise(resolve => setTimeout(resolve, 10* 1000))
+    }) ();
 
-    const creditLedgerEntry = await ledgerModel.create({
+    const [creditLedgerEntry] = await ledgerModel.create([{
         account: toAccount,
         amount,
         transaction: transaction._id,
         type: 'CREDIT'
-    }, { session });
+    }], { session });
 
-    transaction.status = 'COMPLETED';
-    await transaction.save({ session });
+    const [debitLedgerEntry] = await ledgerModel.create([{
+        account: fromAccount,
+        amount,
+        transaction: transaction._id,
+        type: 'DEBIT'
+        }], { session });
+        transaction.status = 'COMPLETE';
+
+    await transactionModel.findOneAndUpdate(
+        {_id: transaction._id},
+        {status: 'COMPLETE'},
+        { session }
+    )        
 
     await session.commitTransaction();
     session.endSession();
-
 
     /*   
     * 10.Send email notifications

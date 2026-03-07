@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
 const emailService = require("../services/email.service");
+const tokenBlacklistModel = require("../models/blackList.model");
 
 async function registerUser(req, res) {
     try {
@@ -109,7 +110,27 @@ async function userLoginController(req, res) {
         });
     }
 }
+
+async function userLogoutController(req, res) {
+
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(200).json({
+            success: false,
+            message: "User is already logged out"
+        });
+    }
+    res.cookie("token", "");
+
+    await tokenBlacklistModel.create({ token });
+
+    return res.status(200).json({
+        success: true,
+        message: "User logged out successfully"
+    });
+}
 module.exports = {
     registerUser,
-    userLoginController
+    userLoginController,
+    userLogoutController
 }
