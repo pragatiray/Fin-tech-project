@@ -28,18 +28,19 @@ async function getUserAccountsController(req, res) {
 }
 
 async function getUserAccountsBalanceController(req, res) {
+
     const {accountId} = req.params;
-        const accounts = await accountModel.find({
+        const account = await accountModel.find({
              _id: accountId,
              user: req.user._id
         });
 
-        if(!accounts) {
+        if(!account) {
             return res.status(404).json({
                 message: "Account not found for the user"
             });
         }
-        const balance = await accounts.getBalance();
+        const balance = await account[0].getBalance();
 
         res.status(200).json({
             accountId,
